@@ -1,5 +1,7 @@
 package io.muzoo.ooc.webapp.basic.servlets;
 
+import io.muzoo.ooc.webapp.basic.security.UserServiceException;
+
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -11,14 +13,18 @@ public class HomeServlet extends AbstractRoutableHttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        if (securityService.isAuthorized(request)) {
-            String username = securityService.getCurrentUsername(request);
-            request.setAttribute("username", username);
+        try {
+            if (securityService.isAuthorized(request)) {
+                String username = securityService.getCurrentUsername(request);
+                request.setAttribute("username", username);
 
-            RequestDispatcher requestDispatcher = request.getRequestDispatcher("WEB-INF/home.jsp");
-            requestDispatcher.include(request, response);
-        } else {
-            response.sendRedirect("/login");
+                RequestDispatcher requestDispatcher = request.getRequestDispatcher("WEB-INF/home.jsp");
+                requestDispatcher.include(request, response);
+            } else {
+                response.sendRedirect("/login");
+            }
+        } catch (UserServiceException e) {
+            e.printStackTrace();
         }
 
     }

@@ -18,9 +18,10 @@ public class SecurityService {
         return (String) usernameObject;
     }
 
-    public boolean isAuthorized(HttpServletRequest request) {
-        String username = getCurrentUsername(request);
-        return userService.checkIfUserExists(username);
+    public boolean isAuthorized(HttpServletRequest request) throws UserServiceException {
+        String username = (String) request.getSession()
+                .getAttribute("username");
+        return (username != null && userService.findByUsername(username) != null);
     }
 
     public void logout(HttpServletRequest request) {
@@ -29,7 +30,7 @@ public class SecurityService {
         session.invalidate();
     }
 
-    public boolean login(HttpServletRequest request) {
+    public boolean login(HttpServletRequest request) throws UserServiceException {
         String username = request.getParameter("username");
         String password = request.getParameter("password");
         User user = userService.findByUsername(username);

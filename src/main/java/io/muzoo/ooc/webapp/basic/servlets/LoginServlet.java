@@ -1,5 +1,7 @@
 package io.muzoo.ooc.webapp.basic.servlets;
 
+import io.muzoo.ooc.webapp.basic.security.UserServiceException;
+
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -13,19 +15,22 @@ public class LoginServlet extends AbstractRoutableHttpServlet {
         RequestDispatcher requestDispatcher = request.getRequestDispatcher("WEB-INF/login.jsp");
         requestDispatcher.include(request, response);
     }
-
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String error = "";
         // authentication
-        if (securityService.login(request)) {
-            response.sendRedirect("/");
-        } else {
-            error = "Username or password incorrect. Please try again.";
+        try {
+            if (securityService.login(request)) {
+                response.sendRedirect("/");
+            } else {
+                error = "Username or password incorrect. Please try again.";
 
-            request.setAttribute("error", error);
-            RequestDispatcher requestDispatcher = request.getRequestDispatcher("WEB-INF/login.jsp");
-            requestDispatcher.include(request, response);
+                request.setAttribute("error", error);
+                RequestDispatcher requestDispatcher = request.getRequestDispatcher("WEB-INF/login.jsp");
+                requestDispatcher.include(request, response);
+            }
+        } catch (UserServiceException e) {
+            e.printStackTrace();
         }
     }
 
