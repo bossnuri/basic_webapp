@@ -2,17 +2,31 @@ package io.muzoo.ooc.webapp.basic.security;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class UserService {
 
     public void setDataBaseConnectionService(DataBaseConnectionService dataBaseConnectionService) {
         this.dataBaseConnectionService = dataBaseConnectionService;
     }
+    private static UserService service;
+
+    public static UserService getInstance(){
+        if(service==null){
+            service = new UserService();
+            service.setDataBaseConnectionService(DataBaseConnectionService.getInstance());
+        }
+        return service;
+    }
 
     private static final String INSET_USER_SQL = "INSERT INTO tbl_user(username,password,display_name) VALUE(?,?,?);";
     private static final String SELECT_USER_SQL = "SELECT * FROM tbl_user WHERE username = ?;";
+    private static final String SELECT_ALL_USERS_SQL = "SELECT * FROM tbl_user;";
+    private static final String DELETE_USER_SQL = "DELETE FROM tbl_user WHERE username = ?;";
+    private static final String UPDATE_USER_SQL = "UPDATE tbl_user SET display_name = ? WHERE username = ?;";
+    private static final String UPDATE_USER_PASSWORD_SQL = "UPDATE tbl_user SET password = ? WHERE username = ?;";
     private DataBaseConnectionService dataBaseConnectionService;
 
     public void createUser(String username,String password,String displayName) throws UserServiceException {
@@ -43,19 +57,91 @@ public class UserService {
                     resultSet.getLong("id"),
                     resultSet.getString("username"),
                     resultSet.getString("password"),
-                    resultSet.getString("displayName")
+                    resultSet.getString("display_name")
             );
         }
         catch(SQLException throwables) {
+            throwables.printStackTrace();
             return null;
         }
     }
+    public List<User> findAll(){
+        List<User> users = new ArrayList<>();
+        try{
+            Connection connection = dataBaseConnectionService.getConnection();
+            PreparedStatement ps = connection.prepareStatement(SELECT_ALL_USERS_SQL);
+            ResultSet resultSet = ps.executeQuery();
+
+            while(resultSet.next()) {
+                users.add(new User(
+                        resultSet.getLong("id"),
+                        resultSet.getString("username"),
+                        resultSet.getString("password"),
+                        resultSet.getString("display_name")
+                ));
+            }
+        }
+        catch(SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return users;
+    }
+
+    public boolean deleteUserByName(String username){
+        try (
+                Connection connection = dataBaseConnectionService.getConnection();
+                PreparedStatement ps = connection.prepareStatement(DELETE_USER_SQL);
+        ) {
+            ps.setString(1, username);
+            ps.executeUpdate();
+            return true;
+        } catch (SQLException throwables) {
+            return false;
+        }
+    }
+    public void updateUserByUsername(String username, String displayName) throws UserServiceException {
+        try {
+            Connection connection =  dataBaseConnectionService.getConnection();
+            PreparedStatement ps = connection.prepareStatement(UPDATE_USER_SQL);
+
+            ps.setString(1, displayName);
+            ps.setString(2, username);
+
+            ps.executeUpdate();
+
+            connection.setAutoCommit(false);
+            connection.commit();
+        } catch (SQLException throwables) {
+            throw new UserServiceException(throwables.getMessage());
+        }
+    }
+    public void changePassword(String username, String newPassword) throws UserServiceException {
+        try {
+            Connection connection = dataBaseConnectionService.getConnection();
+            PreparedStatement ps = connection.prepareStatement(UPDATE_USER_PASSWORD_SQL);
+
+            ps.setString(1, BCrypt.hashpw(newPassword, BCrypt.gensalt()));
+            ps.setString(2, username);
+
+            ps.executeUpdate();
+
+            connection.setAutoCommit(false);
+            connection.commit();
+        } catch (SQLException throwables) {
+            throw new UserServiceException(throwables.getMessage());
+        }
+    }
+
+
+
 
     public static void main(String[] args) {
-        UserService userService = new UserService();
-        userService.setDataBaseConnectionService(new DataBaseConnectionService());
-        User user = userService.findByUsername("gigadot");
-        System.out.println(user.getUsername());
+        UserService userService = UserService.getInstance();
+        try{
+            userService.createUser("admin","123456","Admin");
+        }catch(UserServiceException e){
+            e.printStackTrace();
+        }
     }
 
 //    private Map<String, User> users = new HashMap<>();

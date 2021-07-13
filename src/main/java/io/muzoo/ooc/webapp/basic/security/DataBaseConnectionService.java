@@ -11,6 +11,8 @@ import java.sql.SQLException;
 
 public class DataBaseConnectionService {
     private final HikariDataSource ds;
+
+    private static DataBaseConnectionService service;
     public DataBaseConnectionService(){
         ds = new HikariDataSource();
         ds.setMaximumPoolSize(20);
@@ -27,6 +29,12 @@ public class DataBaseConnectionService {
     }
     public Connection getConnection() throws SQLException{
         return ds.getConnection();
+    }
+    public static DataBaseConnectionService getInstance(){
+        if(service==null){
+            service = new DataBaseConnectionService();
+        }
+        return service;
     }
 //    public static void main(String[] args) {
 //        try  {
