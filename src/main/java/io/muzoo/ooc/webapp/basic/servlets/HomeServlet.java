@@ -33,6 +33,8 @@ public class HomeServlet extends AbstractRoutableHttpServlet {
 
 
         } else {
+            request.removeAttribute("hasError");
+            request.removeAttribute("message");
             response.sendRedirect("/login");
         }
     }
