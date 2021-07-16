@@ -19,6 +19,7 @@ public class HomeServlet extends AbstractRoutableHttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         boolean authorized = securityService.isAuthorized(request);
+
         if (authorized) {
             String username = (String) request.getSession().getAttribute("username");
             UserService userService = UserService.getInstance();
@@ -26,12 +27,11 @@ public class HomeServlet extends AbstractRoutableHttpServlet {
             request.setAttribute("currentUser", userService.findByUsername(username));
             request.setAttribute("users", userService.findAll());
 
-
-
             RequestDispatcher requestDispatcher = request.getRequestDispatcher("WEB-INF/home.jsp");
             requestDispatcher.include(request, response);
 
-
+            request.getSession().removeAttribute("hasError");
+            request.getSession().removeAttribute("message");
         } else {
             request.removeAttribute("hasError");
             request.removeAttribute("message");
