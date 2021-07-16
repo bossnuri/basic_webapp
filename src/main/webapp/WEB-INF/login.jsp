@@ -17,7 +17,7 @@
         <div class="row justify-content-sm-center h-100">
             <div class="col-xxl-4 col-xl-5 col-lg-5 col-md-7 col-sm-9">
                 <div class="text-center my-5">
-                    <img src="https://lh3.googleusercontent.com/z1YQISVHpT8uy8GG1HKiRyWBApWd3R-m3As63DN7BN2b0u69GEDcG44sCy1DkP0JvQFEby9cyPU4DHVylh8hLeEEXFYTl0ronidaiQB6513JV3UmPOSz6WbCABMp49TMjGkTtw2C5A=s240-p-k" alt="logo" width="150">
+                    <img src="https://s.isanook.com/ns/0/ud/1528/7640322/news12.jpg" alt="logo" width="150">
                 </div>
                 <div class="card shadow-lg">
                     <div class="card-body p-5">

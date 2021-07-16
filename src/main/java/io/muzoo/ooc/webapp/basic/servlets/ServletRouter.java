@@ -1,11 +1,6 @@
 package io.muzoo.ooc.webapp.basic.servlets;
-
 import io.muzoo.ooc.webapp.basic.security.SecurityService;
 import io.muzoo.ooc.webapp.basic.security.UserService;
-import io.muzoo.ooc.webapp.basic.servlets.AbstractRoutableHttpServlet;
-import io.muzoo.ooc.webapp.basic.servlets.HomeServlet;
-import io.muzoo.ooc.webapp.basic.servlets.LoginServlet;
-import io.muzoo.ooc.webapp.basic.servlets.LogoutServlet;
 import org.apache.catalina.Context;
 import org.apache.catalina.startup.Tomcat;
 
@@ -18,8 +13,10 @@ public class ServletRouter {
 
     {
         servletClasses.add(HomeServlet.class);
-        servletClasses.add(CreateUserServlet.class);
         servletClasses.add(DeleteUserServlet.class);
+        servletClasses.add(CreateUserServlet.class);
+        servletClasses.add(EditUserServlet.class);
+        servletClasses.add(ChangePasswordServlet.class);
         servletClasses.add(LoginServlet.class);
         servletClasses.add(LogoutServlet.class);
     }

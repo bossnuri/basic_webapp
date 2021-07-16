@@ -1,5 +1,4 @@
 package io.muzoo.ooc.webapp.basic.servlets;
-
 import io.muzoo.ooc.webapp.basic.security.User;
 import io.muzoo.ooc.webapp.basic.security.UserService;
 import org.apache.commons.lang.StringUtils;
@@ -10,7 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-public class ChangePasswordServlet extends AbstractRoutableHttpServlet{
+public class EditUserServlet extends AbstractRoutableHttpServlet{
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -22,9 +21,10 @@ public class ChangePasswordServlet extends AbstractRoutableHttpServlet{
             User user = userService.findByUsername(username);
             request.setAttribute("user", user);
             request.setAttribute("username", user.getUsername());
+            request.setAttribute("displayName", user.getDisplayName());
 
             // if not success, it will arrive here
-            RequestDispatcher requestDispatcher = request.getRequestDispatcher("/WEB-INF/password.jsp");
+            RequestDispatcher requestDispatcher = request.getRequestDispatcher("/WEB-INF/edit.jsp");
             requestDispatcher.include(request, response);
 
             // removing attributes as soon as they are used is known as flash session
@@ -41,11 +41,9 @@ public class ChangePasswordServlet extends AbstractRoutableHttpServlet{
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         if (securityService.isAuthorized(request)) {
-            // change password is similar to edit user
+            // edit user is similar to create user but we only allow editing display name
             String username = StringUtils.trim(request.getParameter("username"));
-            String password = request.getParameter("password");
-            String cpassword = request.getParameter("cpassword");
-
+            String displayName = StringUtils.trim(request.getParameter("displayName"));
 
             UserService userService = UserService.getInstance();
             String errorMessage = null;
@@ -53,11 +51,8 @@ public class ChangePasswordServlet extends AbstractRoutableHttpServlet{
             if (userService.findByUsername(username) == null) {
                 errorMessage = String.format("Username %s does not exist.", username);
             }
-            else if (StringUtils.isBlank(password)) {
-                errorMessage = "Password cannot be blank.";
-            }
-            else if (!StringUtils.equals(password, cpassword)) {
-                errorMessage = "Confirming password does not match with the input password.";
+            else if (StringUtils.isBlank(displayName)) {
+                errorMessage = "Display Name cannot be blank.";
             }
 
             if (errorMessage != null) {
@@ -67,10 +62,10 @@ public class ChangePasswordServlet extends AbstractRoutableHttpServlet{
             else {
                 // edit a user
                 try {
-                    userService.changePassword(username, password);
+                    userService.updateUserByUsername(username, displayName);
                     // if no error redirect
                     request.getSession().setAttribute("hasError", false);
-                    request.getSession().setAttribute("message", String.format("Password for user %s has successfully changed.", username));
+                    request.getSession().setAttribute("message", String.format("User %s has successfully updated.", username));
                     response.sendRedirect("/");
                     return;
                 } catch (Exception e) {
@@ -79,10 +74,12 @@ public class ChangePasswordServlet extends AbstractRoutableHttpServlet{
                 }
 
             }
+            // let's prefill the form
             request.setAttribute("username", username);
+            request.setAttribute("displayName", displayName);
 
             // if not success, it will arrive here
-            RequestDispatcher requestDispatcher = request.getRequestDispatcher("/WEB-INF/password.jsp");
+            RequestDispatcher requestDispatcher = request.getRequestDispatcher("/WEB-INF/edit.jsp");
             requestDispatcher.include(request, response);
 
             // removing attributes as soon as they are used is known as flash session
@@ -95,8 +92,11 @@ public class ChangePasswordServlet extends AbstractRoutableHttpServlet{
             response.sendRedirect("/login");
         }
     }
+
     @Override
     public String getPattern() {
-        return "/user/password";
+        return "/user/edit";
     }
+
+
 }

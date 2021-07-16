@@ -1,12 +1,11 @@
 package io.muzoo.ooc.webapp.basic.security;
 
-import com.zaxxer.hikari.HikariDataSource;
 import io.muzoo.ooc.webapp.basic.config.ConfigProperties;
 import io.muzoo.ooc.webapp.basic.config.ConfigurationLoader;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
+
 import java.sql.SQLException;
 
 public class DataBaseConnectionService {
