@@ -14,14 +14,15 @@ import java.io.File;
 public class Webapp {
 
     public static void main(String[] args) {
+        File doceBase = new File("C:/Users/Settawut/Desktop/gigadot-ooc-tomcat-webapp-4b98c15b2e02/" +
+                "gigadot-ooc-tomcat-webapp-4b98c15b2e02/src/main/webapp");
+        doceBase.mkdirs();
         Tomcat tomcat = new Tomcat();
         tomcat.setPort(8082);
 
         SecurityService securityService  = new SecurityService();
         securityService.setUserService(UserService.getInstance());
 
-        File doceBase = new File("C:/Users/Settawut/Desktop/gigadot-ooc-tomcat-webapp-4b98c15b2e02/gigadot-ooc-tomcat-webapp-4b98c15b2e02/src/main/webapp");
-        doceBase.mkdirs();
 
         try {
             Context ctx = tomcat.addWebapp("", doceBase.getAbsolutePath());
@@ -31,11 +32,9 @@ public class Webapp {
 
             tomcat.start();
             tomcat.getServer().await();
-        } catch (ServletException e) {
-            e.printStackTrace();
-        } catch (LifecycleException e) {
-            e.printStackTrace();
         }
-
+        catch ( LifecycleException ex) {
+            ex.printStackTrace();
+        }
     }
 }

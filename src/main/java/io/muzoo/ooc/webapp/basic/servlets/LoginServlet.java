@@ -12,27 +12,46 @@ public class LoginServlet extends AbstractRoutableHttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        RequestDispatcher requestDispatcher = request.getRequestDispatcher("WEB-INF/login.jsp");
+        RequestDispatcher requestDispatcher = request.getRequestDispatcher("/WEB-INF/login.jsp");
         requestDispatcher.include(request, response);
     }
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String error = "";
         // authentication
-        try {
-            if (securityService.login(request)) {
-                response.sendRedirect("/");
-            } else {
-                error = "Username or password incorrect. Please try again.";
-
-                request.setAttribute("error", error);
-                RequestDispatcher requestDispatcher = request.getRequestDispatcher("WEB-INF/login.jsp");
-                requestDispatcher.include(request, response);
-            }
-        } catch (UserServiceException e) {
-            e.printStackTrace();
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+        if (securityService.authenticate(username, password, request)) {
+            response.sendRedirect("/");
         }
+        else {
+            error = "Username or password incorrect. Please try again.";
+
+            request.setAttribute("error", error);
+            RequestDispatcher requestDispatcher = request.getRequestDispatcher("/WEB-INF/login.jsp");
+            requestDispatcher.include(request, response);
+        }
+
     }
+
+//    @Override
+//    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+//        String error = "";
+//        // authentication
+//        try {
+//            if (securityService.login(request)) {
+//                response.sendRedirect("/");
+//            } else {
+//                error = "Username or password incorrect. Please try again.";
+//
+//                request.setAttribute("error", error);
+//                RequestDispatcher requestDispatcher = request.getRequestDispatcher("/WEB-INF/login.jsp");
+//                requestDispatcher.include(request, response);
+//            }
+//        } catch (UserServiceException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
     @Override
     public String getPattern() {

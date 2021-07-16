@@ -10,32 +10,36 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class DataBaseConnectionService {
-    private final HikariDataSource ds;
 
     private static DataBaseConnectionService service;
-    public DataBaseConnectionService(){
-        ds = new HikariDataSource();
-        ds.setMaximumPoolSize(20);
 
-        ConfigProperties configProperties = ConfigurationLoader.load();
-        if(configProperties == null){
-            throw new RuntimeException("Unable to read config.properties,.");
+    public Connection getConnection() {
+        try {
+            ConfigProperties configProperties = ConfigurationLoader.load();
+            if (configProperties == null) {
+                throw new RuntimeException("Unable to read the config.properties");
+            }
+            String jdbcDriver =  configProperties.getDatabaseDriverClassName();
+            String jdbcURL =  configProperties.getDatabaseConnectionUrl();
+            String username = configProperties.getDatabaseUsername();
+            String password = configProperties.getDatabasePassword();
+            Class.forName(jdbcDriver);
+
+            Connection connection = DriverManager.getConnection(jdbcURL, username, password);
+            return connection;
+
+        } catch (SQLException | ClassNotFoundException e) {
+            return null;
         }
-        ds.setDriverClassName( configProperties.getDatabaseDriverClassName());
-        ds.setJdbcUrl(configProperties.getDatabaseConnectionUrl());
-        ds.addDataSourceProperty("user", configProperties.getDatabaseUsername());
-        ds.addDataSourceProperty("password", configProperties.getDatabasePassword());
-        ds.setAutoCommit(false);
     }
-    public Connection getConnection() throws SQLException{
-        return ds.getConnection();
-    }
+
     public static DataBaseConnectionService getInstance(){
         if(service==null){
             service = new DataBaseConnectionService();
         }
         return service;
     }
+
 //    public static void main(String[] args) {
 //        try  {
 //            Connection connection = ds.getConnection();
@@ -49,5 +53,27 @@ public class DataBaseConnectionService {
 //        }catch(SQLException e){
 //            e.printStackTrace();
 //        }
+//    }
+
+
+//    private final HikariDataSource ds;
+//
+//    private static DataBaseConnectionService service;
+//    public DataBaseConnectionService(){
+//        ds = new HikariDataSource();
+//        ds.setMaximumPoolSize(20);
+//
+//        ConfigProperties configProperties = ConfigurationLoader.load();
+//        if(configProperties == null){
+//            throw new RuntimeException("Unable to read config.properties,.");
+//        }
+//        ds.setDriverClassName( configProperties.getDatabaseDriverClassName());
+//        ds.setJdbcUrl(configProperties.getDatabaseConnectionUrl());
+//        ds.addDataSourceProperty("user", configProperties.getDatabaseUsername());
+//        ds.addDataSourceProperty("password", configProperties.getDatabasePassword());
+//        ds.setAutoCommit(false);
+//    }
+//    public Connection getConnection() throws SQLException{
+//        return ds.getConnection();
 //    }
 }
